@@ -1,9 +1,16 @@
 import { Schema, Types, model } from 'mongoose';
 
-const CommentSchema = new Schema(
+interface IComment {
+    content: string;
+    author: Types.ObjectId;
+    createdAt: Date;
+    updatedAt: Date;
+}
+
+const CommentSchema = new Schema<IComment>(
     {
         content: { type: String, required: true },
-        author: { type: Types.ObjectId, ref: 'User', required: true },
+        author: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     },
     {
         timestamps: true,
