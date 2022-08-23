@@ -17,7 +17,11 @@ const UserSchema = new Schema<IUser>(
         photoURL: { type: String, required: true },
         friends: [{ type: Schema.Types.ObjectId, ref: 'User', required: true }],
         friendRequests: [
-            { type: Schema.Types.ObjectId, ref: 'FriendRequest', required: true },
+            {
+                type: Schema.Types.ObjectId,
+                ref: 'FriendRequest',
+                required: true,
+            },
         ],
         accessToken: { type: String, required: true },
         refreshToken: { type: String, required: true },
