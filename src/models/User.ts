@@ -1,6 +1,7 @@
 import { Schema, Types, model } from 'mongoose';
 
-interface IUser {
+export interface IUser {
+    id: string;
     displayName: string;
     photoURL: string;
     friends: Types.ObjectId[];
@@ -13,6 +14,7 @@ interface IUser {
 
 const UserSchema = new Schema<IUser>(
     {
+        id: { type: String, required: true },
         displayName: { type: String, required: true },
         photoURL: { type: String, required: true },
         friends: [{ type: Schema.Types.ObjectId, ref: 'User', required: true }],
@@ -23,8 +25,6 @@ const UserSchema = new Schema<IUser>(
                 required: true,
             },
         ],
-        accessToken: { type: String, required: true },
-        refreshToken: { type: String, required: true },
     },
     { timestamps: true },
 );
