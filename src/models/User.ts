@@ -6,8 +6,6 @@ export interface IUser {
     photoURL: string;
     friends: Types.ObjectId[];
     friendRequests: Types.ObjectId[];
-    accessToken: string;
-    refreshToken: string;
     createdAt: Date;
     updatedAt: Date;
 }
