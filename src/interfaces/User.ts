@@ -5,7 +5,6 @@ export interface IUser {
     displayName: string;
     photoURL: string;
     friends: Types.ObjectId[];
-    friendRequests: Types.ObjectId[];
     createdAt: Date;
     updatedAt: Date;
 }

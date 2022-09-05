@@ -32,7 +32,6 @@ export const googleStrategy = new Strategy(
                         displayName: profile.displayName,
                         photoURL,
                         friends: [],
-                        friendRequests: [],
                     },
                     (err, user) => {
                         if (err) {
