@@ -1,14 +1,6 @@
-import { Schema, Types, model } from 'mongoose';
+import { Schema, model } from 'mongoose';
 
-export interface IUser {
-    id: string;
-    displayName: string;
-    photoURL: string;
-    friends: Types.ObjectId[];
-    friendRequests: Types.ObjectId[];
-    createdAt: Date;
-    updatedAt: Date;
-}
+import { IUser } from '../interfaces/User';
 
 const UserSchema = new Schema<IUser>(
     {
