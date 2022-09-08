@@ -1,4 +1,5 @@
 import compression from 'compression';
+import cors from 'cors';
 import dotenv from 'dotenv';
 import express from 'express';
 import session from 'express-session';
@@ -9,6 +10,7 @@ import passport from 'passport';
 
 import { googleStrategy } from './auth';
 import indexRouter from './routes/index';
+import postsRouter from './routes/posts';
 
 dotenv.config();
 
@@ -19,6 +21,9 @@ db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 
 // Express
 const app = express();
+
+// CORS
+app.use(cors());
 
 // Passport
 passport.use(googleStrategy);
@@ -41,5 +46,6 @@ app.use(express.urlencoded({ extended: false }));
 
 // Routes
 app.use('/', indexRouter);
+app.use('/posts', postsRouter);
 
 export default app;

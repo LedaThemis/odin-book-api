@@ -16,9 +16,21 @@ const PostSchema = new Schema<IPost>(
         photos: [{ type: String, required: true }],
         author: { type: Schema.Types.ObjectId, ref: 'User', required: true },
         comments: [
-            { type: Schema.Types.ObjectId, ref: 'Comment', required: true },
+            {
+                type: Schema.Types.ObjectId,
+                ref: 'Comment',
+                required: true,
+                default: [],
+            },
         ],
-        likes: [{ type: Schema.Types.ObjectId, ref: 'User', required: true }],
+        likes: [
+            {
+                type: Schema.Types.ObjectId,
+                ref: 'User',
+                required: true,
+                default: [],
+            },
+        ],
     },
     {
         timestamps: true,
