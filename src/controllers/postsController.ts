@@ -10,12 +10,34 @@ interface IPostBody {
     photos: string[];
 }
 
+export const get_timeline = [
+    ensureLoggedIn(),
+    async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const userIdsList = req.user.friends.concat([req.user._id]);
+
+            // Get all posts from friends and self in descending order
+            const timelinePosts = await Post.find({
+                author: { $in: userIdsList },
+            })
+                .sort({ _id: -1 })
+                .populate('author');
+
+            return res.json({
+                state: 'success',
+                posts: timelinePosts,
+            });
+        } catch (e) {
+            return next(e);
+        }
+    },
+];
+
 export const post_create_post = [
     ensureLoggedIn(),
     body('content', 'Content must be 32 characters or more')
         .trim()
-        .isLength({ min: 32 })
-        .escape(),
+        .isLength({ min: 32 }),
     validateErrors,
     (req: Request, res: Response, next: NextFunction) => {
         const { content, photos }: IPostBody = req.body;

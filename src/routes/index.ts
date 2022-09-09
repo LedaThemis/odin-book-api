@@ -3,6 +3,7 @@ import { Router } from 'express';
 import passport from 'passport';
 
 import * as indexController from '../controllers/indexController';
+import * as postsController from '../controllers/postsController';
 
 dotenv.config();
 
@@ -21,5 +22,7 @@ router.get(
     passport.authenticate('google'),
     (req, res) => res.redirect(process.env.CLIENT_REDIRECT_URL),
 );
+
+router.get('/timeline', postsController.get_timeline);
 
 export default router;
