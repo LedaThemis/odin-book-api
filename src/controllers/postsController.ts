@@ -3,6 +3,7 @@ import { NextFunction, Request, Response } from 'express';
 import { body } from 'express-validator';
 
 import Post from '../models/Post';
+import validObjectId from '../utils/validObjectId';
 import validateErrors from '../utils/validateErrors';
 
 interface IPostBody {
@@ -56,5 +57,46 @@ export const post_create_post = [
                 post: savedPost,
             });
         });
+    },
+];
+
+export const post_update_post = [
+    ensureLoggedIn(),
+    validObjectId('postId'),
+    body('content', 'Content must be 32 characters or more')
+        .trim()
+        .isLength({ min: 32 }),
+    validateErrors,
+    async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const postToUpdate = await Post.findOne({
+                _id: req.params.postId,
+                author: req.user._id,
+            });
+
+            if (!postToUpdate) {
+                return res.json({
+                    state: 'failed',
+                    errors: [
+                        { msg: 'You are unauthorized to perform this action.' },
+                    ],
+                });
+            }
+
+            const { content, photos }: IPostBody = req.body;
+
+            Post.findByIdAndUpdate(req.params.postId, { content, photos }).exec(
+                (err, updatedPost) => {
+                    if (err) return next(err);
+
+                    return res.json({
+                        state: 'success',
+                        post: updatedPost,
+                    });
+                },
+            );
+        } catch (err) {
+            return next(err);
+        }
     },
 ];
