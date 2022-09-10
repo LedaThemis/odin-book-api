@@ -36,9 +36,7 @@ export const get_timeline = [
 
 export const post_create_post = [
     isLoggedIn,
-    body('content', 'Content must be 32 characters or more')
-        .trim()
-        .isLength({ min: 32 }),
+    body('content', 'Content must not be empty.').trim().isLength({ min: 1 }),
     validateErrors,
     (req: Request, res: Response, next: NextFunction) => {
         const { content, photos }: IPostBody = req.body;
@@ -63,9 +61,7 @@ export const post_create_post = [
 export const post_update_post = [
     isLoggedIn,
     validObjectId('postId'),
-    body('content', 'Content must be 32 characters or more')
-        .trim()
-        .isLength({ min: 32 }),
+    body('content', 'Content must not be empty.').trim().isLength({ min: 1 }),
     validateErrors,
     async (req: Request, res: Response, next: NextFunction) => {
         try {
