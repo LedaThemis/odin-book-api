@@ -15,7 +15,7 @@ declare global {
     namespace Express {
         type User = IUser;
         interface Request {
-            User: Express.User;
+            user: Express.User;
         }
     }
 }

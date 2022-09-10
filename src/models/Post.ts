@@ -1,14 +1,6 @@
-import { Schema, Types, model } from 'mongoose';
+import { Schema, model } from 'mongoose';
 
-interface IPost {
-    content: string;
-    photos: Types.ObjectId[];
-    author: Types.ObjectId;
-    comments: Types.ObjectId[];
-    likes: Types.ObjectId[];
-    createdAt: Date;
-    updatedAt: Date;
-}
+import { IPost } from '../interfaces/Post';
 
 const PostSchema = new Schema<IPost>(
     {
