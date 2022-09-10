@@ -23,6 +23,9 @@ router.get(
     (req, res) => res.redirect(process.env.CLIENT_REDIRECT_URL),
 );
 
+router.get('/oauth2/failed', indexController.get_user_unauthenicated);
+router.delete('/oauth2/failed', indexController.get_user_unauthenicated);
+
 router.get('/timeline', postsController.get_timeline);
 
 export default router;

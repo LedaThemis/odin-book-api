@@ -9,6 +9,17 @@ export const get_current_user_details = (req: Request, res: Response) => {
     });
 };
 
+export const get_user_unauthenicated = (req: Request, res: Response) => {
+    return res.json({
+        state: 'failed',
+        errors: [
+            {
+                msg: 'You are unauthenticated.',
+            },
+        ],
+    });
+};
+
 export const post_logout_user = (
     req: Request,
     res: Response,
