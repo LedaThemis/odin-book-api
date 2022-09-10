@@ -1,8 +1,8 @@
-import { ensureLoggedIn } from 'connect-ensure-login';
 import { NextFunction, Request, Response } from 'express';
 import { body } from 'express-validator';
 
 import Post from '../models/Post';
+import isLoggedIn from '../utils/isLoggedIn';
 import validObjectId from '../utils/validObjectId';
 import validateErrors from '../utils/validateErrors';
 
@@ -12,7 +12,7 @@ interface IPostBody {
 }
 
 export const get_timeline = [
-    ensureLoggedIn(),
+    isLoggedIn,
     async (req: Request, res: Response, next: NextFunction) => {
         try {
             const userIdsList = req.user.friends.concat([req.user._id]);
@@ -35,7 +35,7 @@ export const get_timeline = [
 ];
 
 export const post_create_post = [
-    ensureLoggedIn(),
+    isLoggedIn,
     body('content', 'Content must be 32 characters or more')
         .trim()
         .isLength({ min: 32 }),
@@ -61,7 +61,7 @@ export const post_create_post = [
 ];
 
 export const post_update_post = [
-    ensureLoggedIn(),
+    isLoggedIn,
     validObjectId('postId'),
     body('content', 'Content must be 32 characters or more')
         .trim()
@@ -92,6 +92,41 @@ export const post_update_post = [
                     return res.json({
                         state: 'success',
                         post: updatedPost,
+                    });
+                },
+            );
+        } catch (err) {
+            return next(err);
+        }
+    },
+];
+
+export const delete_delete_post = [
+    isLoggedIn,
+    validObjectId('postId'),
+    async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const postToDelete = await Post.findOne({
+                _id: req.params.postId,
+                author: req.user._id,
+            });
+
+            if (!postToDelete) {
+                return res.json({
+                    state: 'failed',
+                    errors: [
+                        { msg: 'You are unauthorized to perform this action.' },
+                    ],
+                });
+            }
+
+            Post.findByIdAndDelete(req.params.postId).exec(
+                (err, deletedPost) => {
+                    if (err) return next(err);
+
+                    return res.json({
+                        state: 'success',
+                        post: deletedPost,
                     });
                 },
             );
