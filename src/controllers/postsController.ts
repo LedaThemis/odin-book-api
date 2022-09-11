@@ -10,6 +10,16 @@ import isLoggedIn from '../utils/isLoggedIn';
 import validObjectId from '../utils/validObjectId';
 import validateErrors from '../utils/validateErrors';
 
+const standardPostPopulate = [
+    'author',
+    {
+        path: 'comments',
+        populate: {
+            path: 'author',
+        },
+    },
+];
+
 interface IPostBody {
     content: string;
     photos: string[];
@@ -26,15 +36,7 @@ export const get_timeline = [
                 author: { $in: userIdsList },
             })
                 .sort({ _id: -1 })
-                .populate([
-                    'author',
-                    {
-                        path: 'comments',
-                        populate: {
-                            path: 'author',
-                        },
-                    },
-                ]);
+                .populate(standardPostPopulate);
 
             return res.json({
                 state: 'success',
@@ -50,23 +52,27 @@ export const post_create_post = [
     isLoggedIn,
     body('content', 'Content must not be empty.').trim().isLength({ min: 1 }),
     validateErrors,
-    (req: Request, res: Response, next: NextFunction) => {
-        const { content, photos }: IPostBody = req.body;
+    async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const { content, photos }: IPostBody = req.body;
 
-        const post = new Post({
-            content,
-            photos,
-            author: req.user._id,
-        });
+            const post = new Post({
+                content,
+                photos,
+                author: req.user._id,
+            });
 
-        post.save((err, savedPost) => {
-            if (err) return next(err);
+            const savedPost = await (
+                await post.save()
+            ).populate(standardPostPopulate);
 
             return res.json({
                 state: 'success',
                 post: savedPost,
             });
-        });
+        } catch (e) {
+            return next(e);
+        }
     },
 ];
 
@@ -93,16 +99,21 @@ export const post_update_post = [
 
             const { content, photos }: IPostBody = req.body;
 
-            Post.findByIdAndUpdate(req.params.postId, { content, photos }).exec(
-                (err, updatedPost) => {
-                    if (err) return next(err);
-
-                    return res.json({
-                        state: 'success',
-                        post: updatedPost,
-                    });
+            const updatedPost = await Post.findByIdAndUpdate(
+                req.params.postId,
+                {
+                    content,
+                    photos,
                 },
-            );
+                {
+                    new: true,
+                },
+            ).populate(standardPostPopulate);
+
+            return res.json({
+                state: 'success',
+                post: updatedPost,
+            });
         } catch (err) {
             return next(err);
         }
@@ -189,19 +200,16 @@ export const post_create_post_comment = [
                 author: req.user._id,
             });
 
-            comment.save((err, savedComment) => {
-                if (err) return next(err);
+            const savedComment = await comment.save();
+            postToCommentOn.comments.push(savedComment._id);
 
-                postToCommentOn.comments.push(savedComment._id);
+            const savedPost = await (
+                await postToCommentOn.save()
+            ).populate(standardPostPopulate);
 
-                postToCommentOn.save((err, savedPost) => {
-                    if (err) return next(err);
-
-                    return res.json({
-                        state: 'success',
-                        post: savedPost,
-                    });
-                });
+            return res.json({
+                state: 'success',
+                post: savedPost,
             });
         } catch (e) {
             return next(e);
@@ -239,18 +247,22 @@ export const post_post_like = [
             ) {
                 postToLike.likes.push(req.user._id);
 
-                postToLike.save((err, savedPost) => {
-                    if (err) return next(err);
+                const savedPost = await (
+                    await postToLike.save()
+                ).populate(standardPostPopulate);
 
-                    return res.json({
-                        state: 'success',
-                        post: savedPost,
-                    });
-                });
-            } else {
                 return res.json({
                     state: 'success',
-                    post: postToLike,
+                    post: savedPost,
+                });
+            } else {
+                const populatedPost = await postToLike.populate(
+                    standardPostPopulate,
+                );
+
+                return res.json({
+                    state: 'success',
+                    post: populatedPost,
                 });
             }
         } catch (e) {
@@ -287,23 +299,27 @@ export const post_post_unlike = [
                     .map((like) => like.toString())
                     .includes(req.user._id.toString())
             ) {
-                postToUnLike.likes.filter(
+                postToUnLike.likes = postToUnLike.likes.filter(
                     (likeUserId) =>
                         likeUserId.toString() !== req.user._id.toString(),
                 );
 
-                postToUnLike.save((err, savedPost) => {
-                    if (err) return next(err);
+                const savedPost = await (
+                    await postToUnLike.save()
+                ).populate(standardPostPopulate);
 
-                    return res.json({
-                        state: 'success',
-                        post: savedPost,
-                    });
-                });
-            } else {
                 return res.json({
                     state: 'success',
-                    post: postToUnLike,
+                    post: savedPost,
+                });
+            } else {
+                const populatedPost = await postToUnLike.populate(
+                    standardPostPopulate,
+                );
+
+                return res.json({
+                    state: 'success',
+                    post: populatedPost,
                 });
             }
         } catch (e) {
