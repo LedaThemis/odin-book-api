@@ -144,13 +144,12 @@ export const delete_delete_post = [
     },
 ];
 
-const hasPermissionToCommentOnPost = (post: IPost, user: IUser) => {
+const hasPermissionToInteractWithPost = (post: IPost, user: IUser) => {
     if (post.author instanceof User) {
-        // Post and comment author are  friends
+        // Post and comment author are friends
         if (!post.author.friends.includes(user._id)) {
             return true;
         }
-
         // Post and comment authors match
         else if (post.author._id.toString() === user._id.toString()) {
             return true;
@@ -173,7 +172,7 @@ export const post_create_post_comment = [
 
             if (
                 !postToCommentOn ||
-                !hasPermissionToCommentOnPost(postToCommentOn, req.user)
+                !hasPermissionToInteractWithPost(postToCommentOn, req.user)
             ) {
                 return res.json({
                     state: 'failed',
@@ -204,6 +203,109 @@ export const post_create_post_comment = [
                     });
                 });
             });
+        } catch (e) {
+            return next(e);
+        }
+    },
+];
+
+export const post_post_like = [
+    isLoggedIn,
+    validObjectId('postId'),
+    async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const postToLike = await Post.findById(req.params.postId).populate(
+                'author',
+            );
+
+            if (
+                !postToLike ||
+                !hasPermissionToInteractWithPost(postToLike, req.user)
+            ) {
+                return res.json({
+                    state: 'failed',
+                    errors: [
+                        {
+                            msg: 'You are unauthorized to perform this action.',
+                        },
+                    ],
+                });
+            }
+
+            if (
+                !postToLike.likes
+                    .map((like) => like.toString())
+                    .includes(req.user._id.toString())
+            ) {
+                postToLike.likes.push(req.user._id);
+
+                postToLike.save((err, savedPost) => {
+                    if (err) return next(err);
+
+                    return res.json({
+                        state: 'success',
+                        post: savedPost,
+                    });
+                });
+            } else {
+                return res.json({
+                    state: 'success',
+                    post: postToLike,
+                });
+            }
+        } catch (e) {
+            return next(e);
+        }
+    },
+];
+
+export const post_post_unlike = [
+    isLoggedIn,
+    validObjectId('postId'),
+    async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const postToUnLike = await Post.findById(
+                req.params.postId,
+            ).populate('author');
+
+            if (
+                !postToUnLike ||
+                !hasPermissionToInteractWithPost(postToUnLike, req.user)
+            ) {
+                return res.json({
+                    state: 'failed',
+                    errors: [
+                        {
+                            msg: 'You are unauthorized to perform this action.',
+                        },
+                    ],
+                });
+            }
+
+            if (
+                postToUnLike.likes
+                    .map((like) => like.toString())
+                    .includes(req.user._id.toString())
+            ) {
+                postToUnLike.likes.filter(
+                    (likeUserId) =>
+                        likeUserId.toString() !== req.user._id.toString(),
+                );
+
+                postToUnLike.save((err, savedPost) => {
+                    if (err) return next(err);
+
+                    return res.json({
+                        state: 'success',
+                        post: savedPost,
+                    });
+                });
+            } else {
+                return res.json({
+                    state: 'success',
+                    post: postToUnLike,
+                });
+            }
         } catch (e) {
             return next(e);
         }

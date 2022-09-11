@@ -16,4 +16,10 @@ router.delete('/:postId', postsController.delete_delete_post);
 // CREATE post comment
 router.post('/:postId/comments', postsController.post_create_post_comment);
 
+// Like post
+router.post('/:postId/like', postsController.post_post_like);
+
+// Unlike post
+router.delete('/:postId/like', postsController.post_post_unlike);
+
 export default router;
