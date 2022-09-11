@@ -9,6 +9,7 @@ import logger from 'morgan';
 import passport from 'passport';
 
 import { googleStrategy } from './auth';
+import commentsRouter from './routes/comments';
 import indexRouter from './routes/index';
 import postsRouter from './routes/posts';
 
@@ -47,5 +48,6 @@ app.use(express.urlencoded({ extended: false }));
 // Routes
 app.use('/', indexRouter);
 app.use('/posts', postsRouter);
+app.use('/comments', commentsRouter);
 
 export default app;
