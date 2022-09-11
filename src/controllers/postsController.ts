@@ -1,11 +1,11 @@
 import { NextFunction, Request, Response } from 'express';
 import { body } from 'express-validator';
 
-import { IPost } from '../interfaces/Post';
+import { IComment } from '../interfaces/Comment';
 import { IUser } from '../interfaces/User';
 import Comment from '../models/Comment';
 import Post from '../models/Post';
-import User from '../models/User';
+import areSameUser from '../utils/areSameUser';
 import isLoggedIn from '../utils/isLoggedIn';
 import validObjectId from '../utils/validObjectId';
 import validateErrors from '../utils/validateErrors';
@@ -155,16 +155,17 @@ export const delete_delete_post = [
     },
 ];
 
-const hasPermissionToInteractWithPost = (post: IPost, user: IUser) => {
-    if (post.author instanceof User) {
-        // Post and comment author are friends
-        if (!post.author.friends.includes(user._id)) {
-            return true;
-        }
-        // Post and comment authors match
-        else if (post.author._id.toString() === user._id.toString()) {
-            return true;
-        }
+const hasPermissionToInteractWithPost = (
+    post: { author: IUser },
+    user: IUser,
+) => {
+    // Post and comment author are friends
+    if (!post.author.friends.includes(user._id)) {
+        return true;
+    }
+    // Post and comment authors match
+    else if (post.author._id.toString() === user._id.toString()) {
+        return true;
     } else {
         return false;
     }
@@ -179,7 +180,7 @@ export const post_create_post_comment = [
         try {
             const postToCommentOn = await Post.findOne({
                 _id: req.params.postId,
-            }).populate('author');
+            }).populate<{ author: IUser }>('author');
 
             if (
                 !postToCommentOn ||
@@ -217,14 +218,76 @@ export const post_create_post_comment = [
     },
 ];
 
+export const delete_delete_post_comment = [
+    isLoggedIn,
+    validObjectId('postId'),
+    validObjectId('commentId'),
+    async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const post = await Post.findOne({
+                _id: req.params.postId,
+                comments: req.params.commentId,
+            }).populate<{ author: IUser; comments: IComment[] }>(
+                'author comments',
+            );
+
+            const comment = await Comment.findById(
+                req.params.commentId,
+            ).populate<{ author: IUser }>('author');
+
+            if (!post || !comment) {
+                return res.json({
+                    state: 'failed',
+                    errors: [
+                        {
+                            msg: 'Invalid comment or post.',
+                        },
+                    ],
+                });
+            }
+
+            if (
+                areSameUser(comment.author, req.user) ||
+                areSameUser(post.author, req.user)
+            ) {
+                post.comments = post.comments.filter(
+                    (c) => !c._id.equals(comment._id),
+                );
+
+                const savedPost = await (
+                    await post.save()
+                ).populate(standardPostPopulate);
+
+                await Comment.findByIdAndDelete(req.params.commentId);
+
+                return res.json({
+                    state: 'success',
+                    post: savedPost,
+                });
+            } else {
+                return res.json({
+                    state: 'failed',
+                    errors: [
+                        {
+                            msg: 'You are unauthorized to perform this action.',
+                        },
+                    ],
+                });
+            }
+        } catch (e) {
+            return next(e);
+        }
+    },
+];
+
 export const post_post_like = [
     isLoggedIn,
     validObjectId('postId'),
     async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const postToLike = await Post.findById(req.params.postId).populate(
-                'author',
-            );
+            const postToLike = await Post.findById(req.params.postId).populate<{
+                author: IUser;
+            }>('author');
 
             if (
                 !postToLike ||
@@ -278,7 +341,7 @@ export const post_post_unlike = [
         try {
             const postToUnLike = await Post.findById(
                 req.params.postId,
-            ).populate('author');
+            ).populate<{ author: IUser }>('author');
 
             if (
                 !postToUnLike ||

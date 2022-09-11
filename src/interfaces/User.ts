@@ -1,6 +1,8 @@
 import { Types } from 'mongoose';
 
-export interface IUser {
+import { BaseDocument } from './BaseDocument';
+
+export interface IUser extends BaseDocument {
     id: string;
     displayName: string;
     photoURL: string;
