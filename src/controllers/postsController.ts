@@ -1,10 +1,12 @@
 import { NextFunction, Request, Response } from 'express';
 import { body } from 'express-validator';
+import { Types } from 'mongoose';
 
 import { IComment } from '../interfaces/Comment';
 import { IUser } from '../interfaces/User';
 import Comment from '../models/Comment';
 import Post from '../models/Post';
+import areFriends from '../utils/areFriends';
 import areSameUser from '../utils/areSameUser';
 import isLoggedIn from '../utils/isLoggedIn';
 import standardPostPopulate from '../utils/standardPostPopulate';
@@ -147,15 +149,17 @@ export const delete_delete_post = [
 ];
 
 const hasPermissionToInteractWithPost = (
-    post: { author: IUser },
+    post: {
+        author: { _id: Types.ObjectId; friends: IUser[] | Types.ObjectId[] };
+    },
     user: IUser,
 ) => {
     // Post and comment author are friends
-    if (!post.author.friends.includes(user._id)) {
+    if (areFriends(post.author, user)) {
         return true;
     }
     // Post and comment authors match
-    else if (post.author._id.toString() === user._id.toString()) {
+    else if (areSameUser(post.author, user)) {
         return true;
     } else {
         return false;
