@@ -17,7 +17,10 @@ router.delete('/:postId', postsController.delete_delete_post);
 router.post('/:postId/comments', postsController.post_create_post_comment);
 
 // DELETE post comment
-router.delete('/:postId/comments/:commentId', postsController.delete_delete_post_comment);
+router.delete(
+    '/:postId/comments/:commentId',
+    postsController.delete_delete_post_comment,
+);
 
 // Like post
 router.post('/:postId/like', postsController.post_post_like);
