@@ -8,6 +8,9 @@ const UserSchema = new Schema<IUser>(
         displayName: { type: String, index: true, required: true },
         photoURL: { type: String, required: true },
         friends: [{ type: Schema.Types.ObjectId, ref: 'User', required: true }],
+        incomingFriendsRequests: [
+            { type: Schema.Types.ObjectId, ref: 'User', required: true },
+        ],
     },
     { timestamps: true },
 );
