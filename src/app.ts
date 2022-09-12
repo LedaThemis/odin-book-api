@@ -12,6 +12,7 @@ import { googleStrategy } from './auth';
 import commentsRouter from './routes/comments';
 import indexRouter from './routes/index';
 import postsRouter from './routes/posts';
+import usersRouter from './routes/users';
 
 dotenv.config();
 
@@ -49,5 +50,6 @@ app.use(express.urlencoded({ extended: false }));
 app.use('/', indexRouter);
 app.use('/posts', postsRouter);
 app.use('/comments', commentsRouter);
+app.use('/users', usersRouter);
 
 export default app;
