@@ -7,18 +7,9 @@ import Comment from '../models/Comment';
 import Post from '../models/Post';
 import areSameUser from '../utils/areSameUser';
 import isLoggedIn from '../utils/isLoggedIn';
+import standardPostPopulate from '../utils/standardPostPopulate';
 import validObjectId from '../utils/validObjectId';
 import validateErrors from '../utils/validateErrors';
-
-const standardPostPopulate = [
-    'author',
-    {
-        path: 'comments',
-        populate: {
-            path: 'author',
-        },
-    },
-];
 
 interface IPostBody {
     content: string;
