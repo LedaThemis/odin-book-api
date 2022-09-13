@@ -1,4 +1,5 @@
 import compression from 'compression';
+import MongoStore from 'connect-mongo';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import express from 'express';
@@ -39,6 +40,9 @@ app.use(
         secret: process.env['SECRET_KEY'],
         resave: false,
         saveUninitialized: true,
+        store: MongoStore.create({
+            mongoUrl: process.env.MONGODB_URI,
+        }),
     }),
 );
 app.use(passport.initialize());
