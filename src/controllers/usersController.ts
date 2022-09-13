@@ -169,6 +169,49 @@ export const get_get_user_friends = [
     },
 ];
 
+export const get_get_incoming_friend_requests = [
+    isLoggedIn,
+    async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const user = await User.findById(req.user._id).populate(
+                'incomingFriendRequests',
+            );
+
+            if (!user) {
+                return res.json({
+                    state: 'failed',
+                    errors: [{ msg: 'User does not exist.' }],
+                });
+            }
+
+            return res.json({
+                state: 'success',
+                users: user.incomingFriendRequests,
+            });
+        } catch (e) {
+            return next(e);
+        }
+    },
+];
+
+export const get_get_outgoing_friend_requests = [
+    isLoggedIn,
+    async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const users = await User.find({
+                incomingFriendRequests: req.user._id,
+            });
+
+            return res.json({
+                state: 'success',
+                users,
+            });
+        } catch (e) {
+            return next(e);
+        }
+    },
+];
+
 /**
  * Get people user might know
  */

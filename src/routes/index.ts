@@ -19,6 +19,12 @@ router.get('/me', indexController.get_current_user_details);
 // UPDATE current user
 router.post('/me', usersController.post_update_user_details);
 
+// GET incoming friend requests
+router.get('/incoming', usersController.get_get_incoming_friend_requests);
+
+// GET outgoing friend requests
+router.get('/outgoing', usersController.get_get_outgoing_friend_requests);
+
 // GET people user might know
 router.get('/people', usersController.get_get_user_people);
 
