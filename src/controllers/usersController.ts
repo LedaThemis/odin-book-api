@@ -123,7 +123,29 @@ export const get_get_user_friends = [
 
             return res.json({
                 state: 'success',
-                friends: user.friends,
+                users: user.friends,
+            });
+        } catch (e) {
+            return next(e);
+        }
+    },
+];
+
+/**
+ * Get people user might know
+ */
+export const get_get_user_people = [
+    isLoggedIn,
+    async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const people = await User.find({
+                _id: { $ne: req.user._id },
+                friends: { $ne: req.user._id },
+            });
+
+            return res.json({
+                state: 'success',
+                users: people,
             });
         } catch (e) {
             return next(e);
