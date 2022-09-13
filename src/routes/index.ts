@@ -10,16 +10,22 @@ dotenv.config();
 
 const router = Router();
 
+// GET API status
 router.get('/', indexController.index);
 
+// GET current user
 router.get('/me', indexController.get_current_user_details);
 
+// UPDATE current user
 router.post('/me', usersController.post_update_user_details);
 
+// GET people user might know
 router.get('/people', usersController.get_get_user_people);
 
+// GET login page
 router.get('/login', passport.authenticate('google'));
 
+// POST log out user
 router.post('/logout', indexController.post_logout_user);
 
 router.get(
@@ -31,6 +37,7 @@ router.get(
 router.get('/oauth2/failed', indexController.get_user_unauthenicated);
 router.delete('/oauth2/failed', indexController.get_user_unauthenicated);
 
+// GET current user timeline
 router.get('/timeline', postsController.get_timeline);
 
 export default router;
