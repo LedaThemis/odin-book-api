@@ -101,6 +101,36 @@ export const get_user_posts = [
     },
 ];
 
+export const get_get_user_friends = [
+    isLoggedIn,
+    validObjectId('userId'),
+    async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const user = await User.findById(req.params.userId).populate(
+                'friends',
+            );
+
+            if (!user) {
+                return res.json({
+                    state: 'failed',
+                    errors: [
+                        {
+                            msg: 'User does not exist.',
+                        },
+                    ],
+                });
+            }
+
+            return res.json({
+                state: 'success',
+                friends: user.friends,
+            });
+        } catch (e) {
+            return next(e);
+        }
+    },
+];
+
 export const post_friend_user = [
     isLoggedIn,
     validObjectId('userId'),
