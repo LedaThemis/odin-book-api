@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
-import { query } from 'express-validator';
+import { body, query } from 'express-validator';
 
 import { IUser } from '../interfaces/User';
 import Post from '../models/Post';
@@ -51,6 +51,44 @@ export const get_user_details = [
             return res.json({
                 state: 'success',
                 user,
+            });
+        } catch (e) {
+            return next(e);
+        }
+    },
+];
+
+export const post_update_user_details = [
+    isLoggedIn,
+    body('photoURL', 'photoURL must be a URL or an empty string.')
+        .trim()
+        .isURL()
+        .optional({
+            checkFalsy: true,
+        }),
+    validateErrors,
+    async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const user = await User.findById(req.user._id);
+
+            if (!user) {
+                return res.json({
+                    state: 'failed',
+                    errors: [
+                        {
+                            msg: 'User does not exist.',
+                        },
+                    ],
+                });
+            }
+
+            user.custom.photoURL = req.body.photoURL;
+
+            const savedUser = await user.save();
+
+            return res.json({
+                state: 'success',
+                user: savedUser,
             });
         } catch (e) {
             return next(e);

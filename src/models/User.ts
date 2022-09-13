@@ -23,6 +23,9 @@ const UserSchema = new Schema<IUser>(
                 default: [],
             },
         ],
+        custom: {
+            photoURL: { type: String, required: false, default: '' },
+        },
     },
     { timestamps: true },
 );

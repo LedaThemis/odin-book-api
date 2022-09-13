@@ -14,6 +14,8 @@ router.get('/', indexController.index);
 
 router.get('/me', indexController.get_current_user_details);
 
+router.post('/me', usersController.post_update_user_details);
+
 router.get('/people', usersController.get_get_user_people);
 
 router.get('/login', passport.authenticate('google'));

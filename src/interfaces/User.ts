@@ -8,6 +8,9 @@ export interface IUser extends BaseDocument {
     photoURL: string;
     friends: Types.ObjectId[];
     incomingFriendRequests: Types.ObjectId[];
+    custom: {
+        photoURL: string;
+    };
     createdAt: Date;
     updatedAt: Date;
 }
