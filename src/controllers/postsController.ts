@@ -2,10 +2,12 @@ import { NextFunction, Request, Response } from 'express';
 import { body } from 'express-validator';
 import { Types } from 'mongoose';
 
+import { io } from '../app';
 import { IComment } from '../interfaces/Comment';
 import { IUser } from '../interfaces/User';
 import Comment from '../models/Comment';
 import Post from '../models/Post';
+import User from '../models/User';
 import areFriends from '../utils/areFriends';
 import areSameUser from '../utils/areSameUser';
 import isLoggedIn from '../utils/isLoggedIn';
@@ -58,6 +60,28 @@ export const post_create_post = [
             const savedPost = await (
                 await post.save()
             ).populate(standardPostPopulate);
+
+            const currentUser = await User.findById(req.user._id);
+
+            if (!currentUser) {
+                return res.json({
+                    state: 'failed',
+                    errors: [
+                        {
+                            msg: 'User does not exist.',
+                        },
+                    ],
+                });
+            }
+
+            // Send to friends' sockets
+            if (currentUser.friends.length > 0) {
+                io.to(
+                    currentUser.friends.map((f: Types.ObjectId) =>
+                        f.toString(),
+                    ),
+                ).emit('timeline', savedPost);
+            }
 
             return res.json({
                 state: 'success',

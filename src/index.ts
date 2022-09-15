@@ -5,9 +5,8 @@
  */
 import debug from 'debug';
 import dotenv from 'dotenv';
-import http from 'http';
 
-import app from './app';
+import { app, server } from './app';
 
 debug('odin-blog-api');
 dotenv.config();
@@ -18,12 +17,6 @@ dotenv.config();
 
 const port = normalizePort(process.env.PORT || '3000');
 app.set('port', port);
-
-/**
- * Create HTTP server.
- */
-
-const server = http.createServer(app);
 
 /**
  * Listen on provided port, on all network interfaces.
