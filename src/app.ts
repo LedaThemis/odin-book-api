@@ -35,7 +35,7 @@ const server = http.createServer(app);
 const io = new Server(server, {
     serveClient: false,
     cors: {
-        origin: 'http://localhost:3000',
+        origin: process.env.CLIENT_ORIGIN,
     },
 });
 
@@ -52,7 +52,7 @@ io.on('disconnect', (socket) => {
 });
 
 // CORS
-app.use(cors());
+app.use(cors({ origin: process.env.CLIENT_ORIGIN }));
 
 // Passport
 passport.use(googleStrategy);

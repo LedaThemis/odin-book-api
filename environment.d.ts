@@ -10,6 +10,7 @@ declare global {
             GOOGLE_CLIENT_SECRET: string;
             GOOGLE_CALLBACK_URL: string;
             CLIENT_REDIRECT_URL: string;
+            CLIENT_ORIGIN: string;
         }
     }
     namespace Express {
