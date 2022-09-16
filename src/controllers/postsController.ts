@@ -127,6 +127,28 @@ export const post_update_post = [
                 },
             ).populate(standardPostPopulate);
 
+            const currentUser = await User.findById(req.user._id);
+
+            if (!currentUser) {
+                return res.json({
+                    state: 'failed',
+                    errors: [
+                        {
+                            msg: 'User does not exist.',
+                        },
+                    ],
+                });
+            }
+
+            // Send to friends' sockets
+            if (currentUser.friends.length > 0) {
+                io.to(
+                    currentUser.friends.map((f: Types.ObjectId) =>
+                        f.toString(),
+                    ),
+                ).emit('timeline_update', updatedPost);
+            }
+
             return res.json({
                 state: 'success',
                 post: updatedPost,
@@ -156,16 +178,34 @@ export const delete_delete_post = [
                 });
             }
 
-            Post.findByIdAndDelete(req.params.postId).exec(
-                (err, deletedPost) => {
-                    if (err) return next(err);
+            const deletedPost = await postToDelete.deleteOne();
 
-                    return res.json({
-                        state: 'success',
-                        post: deletedPost,
-                    });
-                },
-            );
+            const currentUser = await User.findById(req.user._id);
+
+            if (!currentUser) {
+                return res.json({
+                    state: 'failed',
+                    errors: [
+                        {
+                            msg: 'User does not exist.',
+                        },
+                    ],
+                });
+            }
+
+            // Send to friends' sockets
+            if (currentUser.friends.length > 0) {
+                io.to(
+                    currentUser.friends.map((f: Types.ObjectId) =>
+                        f.toString(),
+                    ),
+                ).emit('timeline_delete', deletedPost._id);
+            }
+
+            return res.json({
+                state: 'success',
+                postId: deletedPost._id,
+            });
         } catch (err) {
             return next(err);
         }
