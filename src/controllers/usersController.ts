@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import { body, query } from 'express-validator';
+import { isValidObjectId } from 'mongoose';
 
 import { IUser } from '../interfaces/User';
 import Post from '../models/Post';
@@ -404,6 +405,57 @@ export const delete_unfriend_user = [
                     errors: [{ msg: 'You are not friends with user.' }],
                 });
             }
+        } catch (e) {
+            return next(e);
+        }
+    },
+];
+
+export const get_get_guests = [
+    async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const guestUsers = await User.find({ guest: true });
+
+            return res.json({
+                state: 'success',
+                users: guestUsers,
+            });
+        } catch (e) {
+            return next(e);
+        }
+    },
+];
+
+export const post_guest_login = [
+    body('id', 'User ID must not be empty.')
+        .trim()
+        .isLength({ min: 1 })
+        .custom((v) => isValidObjectId(v))
+        .withMessage('User ID is not valid.'),
+    async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const user = await User.findOne({ _id: req.body.id, guest: true });
+
+            if (!user) {
+                return res.json({
+                    state: 'failed',
+                    errors: [
+                        {
+                            msg: 'User does not exist.',
+                        },
+                    ],
+                });
+            }
+
+            req.logIn(user, (err) => {
+                if (err) {
+                    return next(err);
+                }
+
+                return res.json({
+                    state: 'success',
+                });
+            });
         } catch (e) {
             return next(e);
         }

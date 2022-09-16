@@ -46,4 +46,10 @@ router.delete('/oauth2/failed', indexController.get_user_unauthenicated);
 // GET current user timeline
 router.get('/timeline', postsController.get_timeline);
 
+// GET guest users
+router.get('/guests', usersController.get_get_guests);
+
+// Login as guest
+router.post('/guests', usersController.post_guest_login)
+
 export default router;

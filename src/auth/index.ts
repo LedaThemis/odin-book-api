@@ -47,10 +47,10 @@ export const googleStrategy = new Strategy(
 );
 
 passport.serializeUser(function (user, done) {
-    done(null, user.id);
+    done(null, user._id);
 });
-passport.deserializeUser(function (id, done) {
-    User.findOne({ id }, function (err: Error | null, user: IUser) {
+passport.deserializeUser(function (_id, done) {
+    User.findById(_id, function (err: Error | null, user: IUser) {
         done(err, user);
     });
 });
