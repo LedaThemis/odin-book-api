@@ -2,9 +2,9 @@ import { NextFunction, Request, Response } from 'express';
 import { body } from 'express-validator';
 
 import Comment from '../models/Comment';
-import isLoggedIn from '../utils/isLoggedIn';
-import validObjectId from '../utils/validObjectId';
-import validateErrors from '../utils/validateErrors';
+import isLoggedIn from '../middleware/isLoggedIn';
+import validObjectId from '../middleware/validObjectId';
+import validateErrors from '../middleware/validateErrors';
 
 export const post_update_comment = [
     isLoggedIn,

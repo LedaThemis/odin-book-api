@@ -8,10 +8,10 @@ import User from '../models/User';
 import areFriends from '../utils/areFriends';
 import canSeePosts from '../utils/canSeePosts';
 import hasSentFriendRequest from '../utils/hasSentFriendRequest';
-import isLoggedIn from '../utils/isLoggedIn';
+import isLoggedIn from '../middleware/isLoggedIn';
 import standardPostPopulate from '../utils/standardPostPopulate';
-import validObjectId from '../utils/validObjectId';
-import validateErrors from '../utils/validateErrors';
+import validObjectId from '../middleware/validObjectId';
+import validateErrors from '../middleware/validateErrors';
 
 export const get_query_users = [
     isLoggedIn,

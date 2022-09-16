@@ -10,10 +10,10 @@ import Post from '../models/Post';
 import User from '../models/User';
 import areFriends from '../utils/areFriends';
 import areSameUser from '../utils/areSameUser';
-import isLoggedIn from '../utils/isLoggedIn';
+import isLoggedIn from '../middleware/isLoggedIn';
 import standardPostPopulate from '../utils/standardPostPopulate';
-import validObjectId from '../utils/validObjectId';
-import validateErrors from '../utils/validateErrors';
+import validObjectId from '../middleware/validObjectId';
+import validateErrors from '../middleware/validateErrors';
 
 interface IPostBody {
     content: string;
