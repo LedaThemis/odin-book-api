@@ -28,10 +28,8 @@ export const googleStrategy = new Strategy(
 
                 User.create(
                     {
-                        id: profile.id,
                         displayName: profile.displayName,
                         photoURL,
-                        friends: [],
                     },
                     (err, user) => {
                         if (err) {

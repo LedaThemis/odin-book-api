@@ -11,6 +11,7 @@ export interface IUser extends BaseDocument {
     custom: {
         photoURL: string;
     };
+    guest?: boolean;
     createdAt: Date;
     updatedAt: Date;
 }

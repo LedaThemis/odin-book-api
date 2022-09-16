@@ -4,7 +4,6 @@ import { IUser } from '../interfaces/User';
 
 const UserSchema = new Schema<IUser>(
     {
-        id: { type: String, required: true },
         displayName: { type: String, index: true, required: true },
         photoURL: { type: String, required: true },
         friends: [
@@ -26,6 +25,7 @@ const UserSchema = new Schema<IUser>(
         custom: {
             photoURL: { type: String, required: false, default: '' },
         },
+        guest: { type: Boolean, required: false, default: false },
     },
     { timestamps: true },
 );

@@ -29,6 +29,7 @@
     "socket.io": "^4.5.2"
   },
   "devDependencies": {
+    "@faker-js/faker": "^7.5.0",
     "@trivago/prettier-plugin-sort-imports": "^3.3.0",
     "@types/compression": "^1.7.2",
     "@types/connect-ensure-login": "^0.1.7",
