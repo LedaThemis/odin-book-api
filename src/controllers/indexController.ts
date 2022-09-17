@@ -1,12 +1,28 @@
 import { NextFunction, Request, Response } from 'express';
 
+import User from '../models/User';
+
 export function index(req: Request, res: Response) {
     return res.sendStatus(200);
 }
 
-export const get_current_user_details = (req: Request, res: Response) => {
-    return res.json({
-        user: req.user,
+export const get_current_user_details = (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+) => {
+    if (!req.user) {
+        return res.json({
+            user: null,
+        });
+    }
+
+    User.findById(req.user._id).exec((err, user) => {
+        if (err) return next(err);
+
+        return res.json({
+            user,
+        });
     });
 };
 
