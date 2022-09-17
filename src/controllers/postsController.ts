@@ -80,7 +80,7 @@ export const post_create_post = [
                     currentUser.friends.map((f: Types.ObjectId) =>
                         f.toString(),
                     ),
-                ).emit('timeline', savedPost);
+                ).emit('invalidate', ['timeline']);
             }
 
             return res.json({
@@ -146,7 +146,7 @@ export const post_update_post = [
                     currentUser.friends.map((f: Types.ObjectId) =>
                         f.toString(),
                     ),
-                ).emit('timeline_update', updatedPost);
+                ).emit('invalidate', ['timeline']);
             }
 
             return res.json({
@@ -199,7 +199,7 @@ export const delete_delete_post = [
                     currentUser.friends.map((f: Types.ObjectId) =>
                         f.toString(),
                     ),
-                ).emit('timeline_delete', deletedPost._id);
+                ).emit('invalidate', ['timeline']);
             }
 
             return res.json({
