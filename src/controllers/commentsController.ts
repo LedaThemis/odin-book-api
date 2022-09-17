@@ -19,7 +19,7 @@ export const post_update_comment = [
             });
 
             if (!comment) {
-                return res.json({
+                return res.status(403).json({
                     state: 'failed',
                     errors: [
                         {

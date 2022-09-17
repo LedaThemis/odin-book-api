@@ -43,7 +43,7 @@ export const get_user_details = [
             );
 
             if (!user) {
-                return res.json({
+                return res.status(404).json({
                     state: 'failed',
                     errors: [{ msg: 'User does not exist.' }],
                 });
@@ -73,7 +73,7 @@ export const post_update_user_details = [
             const user = await User.findById(req.user._id);
 
             if (!user) {
-                return res.json({
+                return res.status(404).json({
                     state: 'failed',
                     errors: [
                         {
@@ -107,7 +107,7 @@ export const get_user_posts = [
             }>('friends');
 
             if (!user) {
-                return res.json({
+                return res.status(404).json({
                     state: 'failed',
                     errors: [
                         {
@@ -118,7 +118,7 @@ export const get_user_posts = [
             }
 
             if (!canSeePosts(user, req.user)) {
-                return res.json({
+                return res.status(403).json({
                     state: 'failed',
                     errors: [
                         { msg: 'You are unauthorized to perform this action.' },
@@ -150,7 +150,7 @@ export const get_get_user_friends = [
             );
 
             if (!user) {
-                return res.json({
+                return res.status(404).json({
                     state: 'failed',
                     errors: [
                         {
@@ -179,7 +179,7 @@ export const get_get_incoming_friend_requests = [
             );
 
             if (!user) {
-                return res.json({
+                return res.status(404).json({
                     state: 'failed',
                     errors: [{ msg: 'User does not exist.' }],
                 });
@@ -241,7 +241,7 @@ export const post_friend_user = [
     async (req: Request, res: Response, next: NextFunction) => {
         try {
             if (req.params._id === req.user._id.toString()) {
-                return res.json({
+                return res.status(400).json({
                     state: 'failed',
                     errors: [
                         {
@@ -256,7 +256,7 @@ export const post_friend_user = [
             const recipient = await User.findOne({ _id: req.params.userId });
 
             if (!recipient || !currentUser) {
-                return res.json({
+                return res.status(404).json({
                     state: 'failed',
                     errors: [
                         {
@@ -338,7 +338,7 @@ export const delete_unfriend_user = [
             }).populate<{ friends: IUser[] }>('friends');
 
             if (!recipient || !currentUser) {
-                return res.json({
+                return res.status(404).json({
                     state: 'failed',
                     errors: [
                         {
@@ -400,7 +400,7 @@ export const delete_unfriend_user = [
                     user: savedUser,
                 });
             } else {
-                return res.json({
+                return res.status(400).json({
                     state: 'failed',
                     errors: [{ msg: 'You are not friends with user.' }],
                 });
@@ -437,7 +437,7 @@ export const post_guest_login = [
             const user = await User.findOne({ _id: req.body.id, guest: true });
 
             if (!user) {
-                return res.json({
+                return res.status(404).json({
                     state: 'failed',
                     errors: [
                         {

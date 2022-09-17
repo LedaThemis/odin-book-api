@@ -11,7 +11,7 @@ export const get_current_user_details = (req: Request, res: Response) => {
 };
 
 export const get_user_unauthenicated = (req: Request, res: Response) => {
-    return res.json({
+    return res.status(401).json({
         state: 'failed',
         errors: [
             {

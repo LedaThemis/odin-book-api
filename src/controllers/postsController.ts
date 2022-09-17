@@ -5,15 +5,15 @@ import { Types } from 'mongoose';
 import { io } from '../app';
 import { IComment } from '../interfaces/Comment';
 import { IUser } from '../interfaces/User';
+import isLoggedIn from '../middleware/isLoggedIn';
+import validObjectId from '../middleware/validObjectId';
+import validateErrors from '../middleware/validateErrors';
 import Comment from '../models/Comment';
 import Post from '../models/Post';
 import User from '../models/User';
 import areFriends from '../utils/areFriends';
 import areSameUser from '../utils/areSameUser';
-import isLoggedIn from '../middleware/isLoggedIn';
 import standardPostPopulate from '../utils/standardPostPopulate';
-import validObjectId from '../middleware/validObjectId';
-import validateErrors from '../middleware/validateErrors';
 
 interface IPostBody {
     content: string;
@@ -64,7 +64,7 @@ export const post_create_post = [
             const currentUser = await User.findById(req.user._id);
 
             if (!currentUser) {
-                return res.json({
+                return res.status(404).json({
                     state: 'failed',
                     errors: [
                         {
@@ -106,7 +106,7 @@ export const post_update_post = [
             });
 
             if (!postToUpdate) {
-                return res.json({
+                return res.status(403).json({
                     state: 'failed',
                     errors: [
                         { msg: 'You are unauthorized to perform this action.' },
@@ -130,7 +130,7 @@ export const post_update_post = [
             const currentUser = await User.findById(req.user._id);
 
             if (!currentUser) {
-                return res.json({
+                return res.status(404).json({
                     state: 'failed',
                     errors: [
                         {
@@ -170,7 +170,7 @@ export const delete_delete_post = [
             });
 
             if (!postToDelete) {
-                return res.json({
+                return res.status(403).json({
                     state: 'failed',
                     errors: [
                         { msg: 'You are unauthorized to perform this action.' },
@@ -183,7 +183,7 @@ export const delete_delete_post = [
             const currentUser = await User.findById(req.user._id);
 
             if (!currentUser) {
-                return res.json({
+                return res.status(404).json({
                     state: 'failed',
                     errors: [
                         {
@@ -245,7 +245,7 @@ export const post_create_post_comment = [
                 !postToCommentOn ||
                 !hasPermissionToInteractWithPost(postToCommentOn, req.user)
             ) {
-                return res.json({
+                return res.status(403).json({
                     state: 'failed',
                     errors: [
                         {
@@ -295,7 +295,7 @@ export const delete_delete_post_comment = [
             ).populate<{ author: IUser }>('author');
 
             if (!post || !comment) {
-                return res.json({
+                return res.status(404).json({
                     state: 'failed',
                     errors: [
                         {
@@ -324,7 +324,7 @@ export const delete_delete_post_comment = [
                     post: savedPost,
                 });
             } else {
-                return res.json({
+                return res.status(403).json({
                     state: 'failed',
                     errors: [
                         {
@@ -352,7 +352,7 @@ export const post_post_like = [
                 !postToLike ||
                 !hasPermissionToInteractWithPost(postToLike, req.user)
             ) {
-                return res.json({
+                return res.status(403).json({
                     state: 'failed',
                     errors: [
                         {
@@ -406,7 +406,7 @@ export const post_post_unlike = [
                 !postToUnLike ||
                 !hasPermissionToInteractWithPost(postToUnLike, req.user)
             ) {
-                return res.json({
+                return res.status(403).json({
                     state: 'failed',
                     errors: [
                         {
