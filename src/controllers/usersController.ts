@@ -3,15 +3,15 @@ import { body, query } from 'express-validator';
 import { isValidObjectId } from 'mongoose';
 
 import { IUser } from '../interfaces/User';
+import isLoggedIn from '../middleware/isLoggedIn';
+import validObjectId from '../middleware/validObjectId';
+import validateErrors from '../middleware/validateErrors';
 import Post from '../models/Post';
 import User from '../models/User';
 import areFriends from '../utils/areFriends';
 import canSeePosts from '../utils/canSeePosts';
 import hasSentFriendRequest from '../utils/hasSentFriendRequest';
-import isLoggedIn from '../middleware/isLoggedIn';
 import standardPostPopulate from '../utils/standardPostPopulate';
-import validObjectId from '../middleware/validObjectId';
-import validateErrors from '../middleware/validateErrors';
 
 export const get_query_users = [
     isLoggedIn,

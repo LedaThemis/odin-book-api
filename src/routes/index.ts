@@ -50,6 +50,6 @@ router.get('/timeline', postsController.get_timeline);
 router.get('/guests', usersController.get_get_guests);
 
 // Login as guest
-router.post('/guests', usersController.post_guest_login)
+router.post('/guests', usersController.post_guest_login);
 
 export default router;
