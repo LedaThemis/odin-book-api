@@ -24,18 +24,43 @@ export const get_timeline = [
     isLoggedIn,
     async (req: Request, res: Response, next: NextFunction) => {
         try {
+            const postsPerPage = 5;
+
             const userIdsList = req.user.friends.concat([req.user._id]);
+
+            // No cursor is specified
+            if (!req.query.cursor) {
+                // Get latest post
+                const latestPost = (
+                    await Post.find({}).sort({ _id: -1 }).limit(1)
+                )[0];
+
+                req.query.cursor = latestPost._id.toString();
+            }
 
             // Get all posts from friends and self in descending order
             const timelinePosts = await Post.find({
+                _id: { $lt: req.query.cursor },
                 author: { $in: userIdsList },
             })
                 .sort({ _id: -1 })
+                .limit(postsPerPage)
                 .populate(standardPostPopulate);
+
+            const count = await Post.find({
+                _id: { $lt: req.query.cursor },
+                author: { $in: userIdsList },
+            })
+                .sort({ _id: -1 })
+                .count();
 
             return res.json({
                 state: 'success',
                 posts: timelinePosts,
+                nextCursor:
+                    count > postsPerPage
+                        ? timelinePosts.at(-1)?._id.toString()
+                        : undefined,
             });
         } catch (e) {
             return next(e);
