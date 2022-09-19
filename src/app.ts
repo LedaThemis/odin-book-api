@@ -12,6 +12,7 @@ import passport from 'passport';
 import { Server } from 'socket.io';
 
 import { googleStrategy } from './auth';
+import chatRouter from './routes/chat';
 import commentsRouter from './routes/comments';
 import indexRouter from './routes/index';
 import postsRouter from './routes/posts';
@@ -78,9 +79,10 @@ app.use(express.urlencoded({ extended: false }));
 
 // Routes
 app.use('/', indexRouter);
+app.use('/chat', chatRouter);
 app.use('/posts', postsRouter);
-app.use('/comments', commentsRouter);
 app.use('/users', usersRouter);
+app.use('/comments', commentsRouter);
 
 // Socket.io middleware
 io.use(wrap(sessionMiddleware));
