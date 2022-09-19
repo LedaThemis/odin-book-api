@@ -93,3 +93,70 @@ export const post_start_conversation = [
     },
 ];
 
+export const get_get_room = [
+    isLoggedIn,
+    validObjectId('roomId'),
+    async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const room = await ChatRoom.findOne({
+                _id: req.params.roomId,
+                members: req.user._id,
+            }).populate('members');
+
+            if (!room) {
+                return res.status(404).json({
+                    state: 'failed',
+                    errors: [
+                        {
+                            msg: 'Room does not exist.',
+                        },
+                    ],
+                });
+            }
+
+            return res.json({
+                state: 'success',
+                room,
+            });
+        } catch (e) {
+            return next(e);
+        }
+    },
+];
+
+export const get_get_room_messages = [
+    isLoggedIn,
+    validObjectId('roomId'),
+    async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const room = await ChatRoom.findOne({
+                _id: req.params.roomId,
+                members: req.user._id,
+            }).populate({
+                path: 'messages',
+                populate: {
+                    path: 'author',
+                },
+            });
+
+            if (!room) {
+                return res.status(404).json({
+                    state: 'failed',
+                    errors: [
+                        {
+                            msg: 'Room does not exist.',
+                        },
+                    ],
+                });
+            }
+
+            return res.json({
+                state: 'success',
+                messages: room.messages,
+            });
+        } catch (e) {
+            return next(e);
+        }
+    },
+];
+
