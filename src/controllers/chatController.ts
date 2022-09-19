@@ -160,3 +160,116 @@ export const get_get_room_messages = [
     },
 ];
 
+export const post_message_send = [
+    isLoggedIn,
+    validObjectId('roomId'),
+    body('content', 'Content must not be empty.').trim().isLength({ min: 1 }),
+    body('attachments', 'Attachments must be a list').isArray(),
+    validateErrors,
+    async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const room = await ChatRoom.findOne({
+                _id: req.params.roomId,
+                members: req.user._id,
+            });
+
+            if (!room) {
+                return res.status(404).json({
+                    state: 'failed',
+                    errors: [
+                        {
+                            msg: 'Room does not exist.',
+                        },
+                    ],
+                });
+            }
+
+            const message = new Message({
+                content: req.body.content,
+                attachments: req.body.attachments ?? [],
+                author: req.user._id,
+            });
+
+            const savedMessage = await (
+                await message.save()
+            ).populate('author');
+
+            // Push new message to room messages
+            room.messages.push(savedMessage._id);
+
+            await room.save();
+
+            // Emit to all users except current user
+            const roomMembersExceptUser = room.members
+                .filter((m) => !m._id.equals(req.user._id))
+                .map((m) => m.toString());
+
+            io.to(roomMembersExceptUser).emit('invalidate', [
+                'chat',
+                'rooms',
+                room._id.toString(),
+                'messages',
+            ]);
+
+            return res.json({
+                state: 'success',
+                message: savedMessage,
+            });
+        } catch (e) {
+            return next(e);
+        }
+    },
+];
+
+export const delete_delete_room_message = [
+    isLoggedIn,
+    validObjectId('roomId'),
+    validObjectId('messageId'),
+    async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const room = await ChatRoom.findOne({
+                _id: req.params.roomId,
+                members: req.user._id,
+                messages: req.params.messageId,
+            });
+
+            if (!room) {
+                return res.status(404).json({
+                    state: 'failed',
+                    errors: [
+                        {
+                            msg: 'Room or message do not exist.',
+                        },
+                    ],
+                });
+            }
+
+            // Delete message from messages array
+            room.messages = room.messages.filter(
+                (m) => m.toString() !== req.params.messageId,
+            );
+
+            await Message.deleteOne({ _id: req.params.messageId });
+
+            await room.save();
+
+            // Emit to all users except current user
+            const roomMembersExceptUser = room.members
+                .filter((m) => !m._id.equals(req.user._id))
+                .map((m) => m.toString());
+
+            io.to(roomMembersExceptUser).emit('invalidate', [
+                'chat',
+                'rooms',
+                room._id.toString(),
+                'messages',
+            ]);
+
+            return res.json({
+                state: 'success',
+            });
+        } catch (e) {
+            return next(e);
+        }
+    },
+];
