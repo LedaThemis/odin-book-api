@@ -222,29 +222,23 @@ export const get_get_user_people = [
         try {
             const peoplePerPage = 5;
 
-            // No cursor is specified
-            if (!req.query.cursor) {
-                // Get latest user
-                const latestUser = (
-                    await User.find({}).sort({ _id: -1 }).limit(1)
-                )[0];
+            let additionalQuery: { $lt?: unknown } = {};
 
-                req.query.cursor = latestUser._id.toString();
+            // No cursor is specified
+            if (isValidObjectId(req.query.cursor)) {
+                additionalQuery = { $lt: req.query.cursor };
             }
 
-            const people = await User.find({
-                _id: { $ne: req.user._id, $lt: req.query.cursor },
+            const query = {
+                _id: { $ne: req.user._id, ...additionalQuery },
                 friends: { $ne: req.user._id },
-            })
+            };
+
+            const people = await User.find(query)
                 .sort({ _id: -1 })
                 .limit(peoplePerPage);
 
-            const count = await User.find({
-                _id: { $ne: req.user._id, $lt: req.query.cursor },
-                friends: { $ne: req.user._id },
-            })
-                .sort({ _id: -1 })
-                .count();
+            const count = await User.find(query).sort({ _id: -1 }).count();
 
             return res.json({
                 state: 'success',

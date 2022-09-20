@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import { body } from 'express-validator';
-import { Types } from 'mongoose';
+import { Types, isValidObjectId } from 'mongoose';
 
 import { io } from '../app';
 import { IComment } from '../interfaces/Comment';
@@ -28,31 +28,25 @@ export const get_timeline = [
 
             const userIdsList = req.user.friends.concat([req.user._id]);
 
-            // No cursor is specified
-            if (!req.query.cursor) {
-                // Get latest post
-                const latestPost = (
-                    await Post.find({}).sort({ _id: -1 }).limit(1)
-                )[0];
+            let additionalQuery: { _id?: { $lt: unknown } } = {};
 
-                req.query.cursor = latestPost._id.toString();
+            // Cursor is specified and is valid objectId
+            if (isValidObjectId(req.query.cursor)) {
+                additionalQuery = { _id: { $lt: req.query.cursor } };
             }
 
-            // Get all posts from friends and self in descending order
-            const timelinePosts = await Post.find({
-                _id: { $lt: req.query.cursor },
+            const query = {
+                ...additionalQuery,
                 author: { $in: userIdsList },
-            })
+            };
+
+            // Get all posts from friends and self in descending order
+            const timelinePosts = await Post.find(query)
                 .sort({ _id: -1 })
                 .limit(postsPerPage)
                 .populate(standardPostPopulate);
 
-            const count = await Post.find({
-                _id: { $lt: req.query.cursor },
-                author: { $in: userIdsList },
-            })
-                .sort({ _id: -1 })
-                .count();
+            const count = await Post.find(query).sort({ _id: -1 }).count();
 
             return res.json({
                 state: 'success',
