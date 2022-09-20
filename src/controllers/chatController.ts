@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import { body } from 'express-validator';
-import { isValidObjectId } from 'mongoose';
+import { Types, isValidObjectId } from 'mongoose';
 
 import { io } from '../app';
 import isLoggedIn from '../middleware/isLoggedIn';
@@ -184,6 +184,28 @@ export const post_message_send = [
                 });
             }
 
+            const roomMembersExceptUser = room.members
+                .filter((m) => !m._id.equals(req.user._id))
+                .map((m) => m.toString());
+
+            // Some room members are friends of user
+            const areFriendsInRoom = roomMembersExceptUser.some((id) =>
+                req.user.friends
+                    .map((id: Types.ObjectId) => id.toString())
+                    .includes(id.toString()),
+            );
+
+            if (!areFriendsInRoom) {
+                return res.status(403).json({
+                    state: 'failed',
+                    errors: [
+                        {
+                            msg: 'You are not friends with any of the users in this room.',
+                        },
+                    ],
+                });
+            }
+
             const message = new Message({
                 content: req.body.content,
                 attachments: req.body.attachments ?? [],
@@ -200,10 +222,6 @@ export const post_message_send = [
             await room.save();
 
             // Emit to all users except current user
-            const roomMembersExceptUser = room.members
-                .filter((m) => !m._id.equals(req.user._id))
-                .map((m) => m.toString());
-
             io.to(roomMembersExceptUser).emit('invalidate', [
                 'chat',
                 'rooms',
