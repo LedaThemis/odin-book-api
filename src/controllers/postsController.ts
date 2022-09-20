@@ -68,6 +68,36 @@ export const get_timeline = [
     },
 ];
 
+export const get_get_post_likes = [
+    isLoggedIn,
+    validObjectId('postId'),
+    async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            // get users that user can see posts from (basically themselves + friends)
+            const users = req.user.friends.concat([req.user._id]);
+
+            const post = await Post.findOne({
+                _id: req.params.postId,
+                author: { $in: users },
+            }).populate('likes');
+
+            if (!post) {
+                return res.status(404).json({
+                    state: 'failed',
+                    errors: [{ msg: 'Post does not exist.' }],
+                });
+            }
+
+            return res.json({
+                state: 'success',
+                users: post.likes,
+            });
+        } catch (e) {
+            return next(e);
+        }
+    },
+];
+
 export const post_create_post = [
     isLoggedIn,
     body('content', 'Content must not be empty.').trim().isLength({ min: 1 }),

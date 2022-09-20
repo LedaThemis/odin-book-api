@@ -7,6 +7,9 @@ const router = Router();
 // CREATE post
 router.post('/', postsController.post_create_post);
 
+// READ post likes
+router.get('/:postId/likes', postsController.get_get_post_likes)
+
 // UPDATE post
 router.post('/:postId', postsController.post_update_post);
 
