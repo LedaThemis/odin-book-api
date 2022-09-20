@@ -138,6 +138,13 @@ export const post_create_post = [
                 ).emit('invalidate', ['timeline']);
             }
 
+            // Invalidate to friends or user currently in profile
+            io.to(
+                req.user.friends
+                    .concat([req.user._id])
+                    .map((id: Types.ObjectId) => id.toString()),
+            ).emit('invalidate', ['users', req.user._id.toString(), 'posts']);
+
             return res.json({
                 state: 'success',
                 post: savedPost,
@@ -204,6 +211,13 @@ export const post_update_post = [
                 ).emit('invalidate', ['timeline']);
             }
 
+            // Invalidate to friends or user currently in profile
+            io.to(
+                req.user.friends
+                    .concat([req.user._id])
+                    .map((id: Types.ObjectId) => id.toString()),
+            ).emit('invalidate', ['users', req.user._id.toString(), 'posts']);
+
             return res.json({
                 state: 'success',
                 post: updatedPost,
@@ -256,6 +270,13 @@ export const delete_delete_post = [
                     ),
                 ).emit('invalidate', ['timeline']);
             }
+
+            // Invalidate to friends or user currently in profile
+            io.to(
+                req.user.friends
+                    .concat([req.user._id])
+                    .map((id: Types.ObjectId) => id.toString()),
+            ).emit('invalidate', ['users', req.user._id.toString(), 'posts']);
 
             return res.json({
                 state: 'success',
