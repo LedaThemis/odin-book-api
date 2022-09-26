@@ -103,6 +103,18 @@ const friendUsersFromList = async (user: UserType, users: UserType[]) => {
     return savedUser;
 };
 
+const likeGuestPosts = async (author: UserType) => {
+    const userPosts = await Post.find({ author: author._id });
+
+    for (let i = 0; i < userPosts.length; i++) {
+        userPosts[i].likes = faker.helpers.arrayElements(author.friends);
+
+        await userPosts[i].save();
+    }
+
+    console.log(`${author.displayName}: Added likes to user posts.`);
+};
+
 const main = async () => {
     try {
         // Get guest users
@@ -130,6 +142,10 @@ const main = async () => {
                 guestUsers[i],
                 guestUsers.filter((u) => !u._id.equals(guestUsers[i]._id)),
             );
+        }
+
+        for (let i = 0; i < guestUsers.length; i++) {
+            await likeGuestPosts(guestUsers[i]);
         }
 
         process.exit();
