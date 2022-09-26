@@ -37,7 +37,6 @@ const io = new Server(server, {
     serveClient: false,
     cors: {
         origin: process.env.CLIENT_ORIGIN,
-        credentials: true,
     },
 });
 
@@ -54,7 +53,7 @@ io.on('disconnect', (socket) => {
 });
 
 // CORS
-app.use(cors({ origin: process.env.CLIENT_ORIGIN }));
+app.use(cors({ origin: process.env.CLIENT_ORIGIN, credentials: true }));
 
 // Passport
 passport.use(googleStrategy);
