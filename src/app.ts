@@ -37,6 +37,7 @@ const io = new Server(server, {
     serveClient: false,
     cors: {
         origin: process.env.CLIENT_ORIGIN,
+        credentials: true
     },
 });
 
