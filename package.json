@@ -1,5 +1,5 @@
 {
-    "name": "express-typescript-starter-template",
+    "name": "odin-book-api",
     "version": "1.0.0",
     "private": true,
     "engines": {
