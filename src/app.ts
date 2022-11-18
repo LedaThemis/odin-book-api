@@ -66,10 +66,6 @@ const sessionMiddleware = session({
     store: MongoStore.create({
         mongoUrl: process.env.MONGODB_URI,
     }),
-    cookie: {
-        secure: true,
-        sameSite: 'none',
-    },
 });
 
 // Middleware
