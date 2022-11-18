@@ -1,4 +1,4 @@
-# [Odin | Odinbook (API)](https://odin-book-api.onrender.com/)
+# [Odin | Odinbook (API)](https://api.odinbook.leda.dev/)
 
 Technologies used:
 
